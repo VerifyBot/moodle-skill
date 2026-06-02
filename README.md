@@ -1,137 +1,135 @@
+![Moodle Context Skill screenshot](assets/showoff-screenshot.png)
+
 # Moodle Context Skill
 
-Small read-only Moodle helper for course lists, deadlines, submissions, forums, and assignment files.
+A small read-only helper that lets an AI assistant answer Moodle questions from live Technion Moodle data.
 
-It is built around Moodle's web-service API. Nothing here submits work or changes Moodle state.
+## Features
 
-## What actually matters
+- Lists your visible Moodle courses.
+- Shows homework, lab, and assignment deadlines.
+- Checks submission status.
+- Reads course sections and forum posts.
+- Lists assignment files and extracts text from PDFs.
+- Keeps your real Moodle token out of git.
 
-If you only want to give this to another agentic coding assistant, these are the important files:
+## Get Started
 
-- `scripts/moodle_cli.py` is the real Moodle API client and base command-line tool.
-- `scripts/moodle_query.py` is the convenient wrapper. This is where the extra file commands live: `assignment-raw`, `assignment-files`, and `file-text`.
-- `config.ini.example` shows the config shape. The real local file should be named `config.ini` and contain your token.
-- `SKILL.md` tells an agent when to use the tool and which commands to run.
-
-The rest is useful but not essential:
-
-- `README.md` is setup help for a human.
-- `agents/openai.yaml` is Codex skill metadata.
-- `references/course-aliases.md` and `memory.md` are local context/preferences.
-- `tests/` is for checking that the code still behaves.
-
-So the smallest useful bundle is:
-
-```text
-scripts/moodle_cli.py
-scripts/moodle_query.py
-config.ini.example
-SKILL.md
-```
-
-For an agent that does not understand Codex skills, paste or attach `SKILL.md` plus the two files in `scripts/`, then tell it to run commands through `python3 scripts/moodle_query.py ...`.
-
-## Setup
-
-Install the Python dependencies:
+Install the Python tools:
 
 ```bash
 uv sync
 ```
 
-PDF text extraction uses `pdftotext`. On Ubuntu/Debian:
-
-```bash
-sudo apt install poppler-utils
-```
-
-Create your local config:
+Create your private config file:
 
 ```bash
 cp config.ini.example config.ini
 ```
 
-Now get a Moodle token:
+Open `config.ini`. It should look like this:
 
-1. Open DevTools in your browser.
-2. Go to:
+```ini
+[moodle]
+token=
+web_service_token=
+domain=moodle25.technion.ac.il
+```
 
-   `https://moodle25.technion.ac.il/admin/tool/mobile/launch.php?service=moodle_mobile_app&passport=12345&urlscheme=moodlemobile`
+## Get Your Moodle Token
 
-3. Moodle will redirect. In the redirected page URL, copy the token from the query string.
-4. Paste it into `config.ini` as `token=...`.
+1. Open this link in your browser:
 
-`config.ini` is ignored by git. Do not commit it.
+```text
+https://moodle25.technion.ac.il/admin/tool/mobile/launch.php?service=moodle_mobile_app&passport=12345&urlscheme=moodlemobile
+```
 
-## Quick checks
+2. Log in to Moodle if it asks.
+3. Moodle redirects you to a new page.
+4. Copy the long value after `token=` in the redirected URL.
+5. Paste it into `config.ini`.
+
+Example:
+
+```ini
+[moodle]
+token=PASTE_YOUR_TOKEN_HERE
+web_service_token=
+domain=moodle25.technion.ac.il
+```
+
+`config.ini` is ignored by git, so your token stays local.
+
+## Try It
+
+Check that the skill can talk to Moodle:
 
 ```bash
 python3 scripts/moodle_query.py init
+```
+
+List your courses:
+
+```bash
 python3 scripts/moodle_query.py courses
+```
+
+Show all visible assignment deadlines:
+
+```bash
 python3 scripts/moodle_query.py assignments
 ```
 
-If you prefer `uv` explicitly:
+Show assignments for one course:
 
 ```bash
-uv run python scripts/moodle_query.py courses
+python3 scripts/moodle_query.py assignments --courseid 3621
 ```
 
-## Useful commands
+## Useful Commands
 
-List course content:
-
-```bash
-python3 scripts/moodle_query.py course-content --courseid 12345
-```
-
-List assignments for one course:
+Read the course content page:
 
 ```bash
-python3 scripts/moodle_query.py assignments --courseid 12345
+python3 scripts/moodle_query.py course-content --courseid 3621
 ```
 
 Check one assignment submission:
 
 ```bash
-python3 scripts/moodle_query.py submission-status --assignid 67890
+python3 scripts/moodle_query.py submission-status --assignid 14221
 ```
 
-List the prompt files and your submitted files for an assignment:
+List assignment files:
 
 ```bash
-python3 scripts/moodle_query.py assignment-files --assignid 67890 --courseid 12345
+python3 scripts/moodle_query.py assignment-files --assignid 14221 --courseid 3621
 ```
 
-Print raw assignment metadata:
+Extract text from an assignment PDF:
 
 ```bash
-python3 scripts/moodle_query.py assignment-raw --assignid 67890 --courseid 12345
+python3 scripts/moodle_query.py file-text --assignid 14221 --courseid 3621 --filename 'Homework'
 ```
 
-Extract text from assignment PDFs:
-
-```bash
-python3 scripts/moodle_query.py file-text --assignid 67890 --courseid 12345 --filename 'Project'
-```
-
-Extract text from a Moodle file URL or a local PDF:
-
-```bash
-python3 scripts/moodle_query.py file-text --url 'https://moodle25.technion.ac.il/.../file.pdf'
-python3 scripts/moodle_query.py file-text --path /tmp/file.pdf
-```
-
-## Tests
+Run the tests:
 
 ```bash
 uv run python -m unittest discover -s tests
 ```
 
-The tests do not need a real Moodle token. Live commands do.
+## How It Works
 
-## Notes
+- `scripts/moodle_cli.py` talks to Moodle's web-service API.
+- `scripts/moodle_query.py` gives simpler commands for assistants and humans.
+- `SKILL.md` tells Codex when to use the Moodle helper.
+- `config.ini.example` shows the token config format.
+- `memory.md` stores local preferences, such as which courses to treat as current.
 
-- `file-text` currently supports PDFs.
-- Add more formats by extending `extract_file_text` in `scripts/moodle_query.py`.
-- The Moodle API can be slow or temporarily unreachable; the commands print the Moodle/API error directly when that happens.
+The tool is read-only. It can fetch Moodle data, but it does not submit assignments or change Moodle.
+
+PDF text extraction needs `pdftotext`. On Ubuntu/Debian:
+
+```bash
+sudo apt install poppler-utils
+```
