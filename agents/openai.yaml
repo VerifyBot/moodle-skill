@@ -1,0 +1,4 @@
+interface:
+  display_name: "Moodle Context"
+  short_description: "Query Moodle courses, deadlines, submissions, and files"
+  default_prompt: "Use $moodle-context to answer my Moodle deadline, grade, course, forum, submission, or assignment-file question."

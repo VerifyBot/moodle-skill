@@ -1,0 +1,7 @@
+[moodle]
+# Paste the token from the Moodle mobile redirect here.
+# The script accepts either `token` or `web_service_token`; keeping both keys
+# makes it easy to use either format.
+token=
+web_service_token=
+domain=moodle25.technion.ac.il
