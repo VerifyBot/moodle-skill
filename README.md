@@ -1,6 +1,6 @@
-![Moodle Context Skill screenshot](assets/showoff-screenshot.png)
-
 # Moodle Context Skill
+
+![Moodle Context Skill screenshot](assets/showoff-screenshot.png)
 
 A small read-only helper that lets an AI assistant answer Moodle questions from live Technion Moodle data.
 
