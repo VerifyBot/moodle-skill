@@ -11,7 +11,6 @@ A small read-only helper that lets an AI assistant answer Moodle questions from 
 - Checks submission status.
 - Reads course sections and forum posts.
 - Lists assignment files and extracts text from PDFs.
-- Keeps your real Moodle token out of git.
 
 ## Get Started
 
@@ -32,7 +31,6 @@ Open `config.ini`. It should look like this:
 ```ini
 [moodle]
 token=
-web_service_token=
 domain=moodle25.technion.ac.il
 ```
 
@@ -54,11 +52,8 @@ Example:
 ```ini
 [moodle]
 token=PASTE_YOUR_TOKEN_HERE
-web_service_token=
 domain=moodle25.technion.ac.il
 ```
-
-`config.ini` is ignored by git, so your token stays local.
 
 ## Try It
 
